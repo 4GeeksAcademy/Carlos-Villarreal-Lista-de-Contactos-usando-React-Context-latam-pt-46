@@ -1,62 +1,54 @@
-import { useReducer } from "react";
+import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
 
-function reducer(state, action) {
-	switch(action.type) {
-		case "UPDATE_TODO_INPUT": {
-			return {
-				...state,
-				inputTodo: "Esta es una tarea"
-			}
-			//default:
-				throw new Error("Action not available in reducer: ${action.type}")
-		}
-	}
-}
+import CardContact from "../components/CardContact.jsx";
+import { useEffect } from "react";
 
-function initialValue() {
-	return {
-		todos: [],
-		inputTodo: ""
-	}
-}
+const API_URL = "https://playground.4geeks.com/contact";
+const user = "tester25";
+
 export const Home = () => {
-  const [state, dispatch] = useReducer(reducer, initialValue())
-	return (
-		<div className="text-center mt-5">
-			<div className="container">
-				<div className="row justify-content-center">
-					<div className="col-6">
-						<div className="flex">
-							<div className="mb-3">
-								<label for="exampleFormControlInput1" className="form-label fs-1">Agrega un todo</label>
-								<input 
-									type="text" 
-									className="form-control" 
-									id="exampleFormControlInput1" 
-									placeholder="Agregar contacto"
-									value={state.inputTodo} 
-									onChange={(event) => {
-										dispatch({type: "UPDATE_TODO_INPUT"})
-									}}
-								/>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div className="container">
-				<div className="row justify-content-center">
-					<div className="col-6">
-						<ul className="list-group list-group-flush">
-							{
-								state.todos.map(() => {
-									return <li className="list-group-item">An item</li>
-								})
-							}
-						</ul>
-					</div>
-				</div>
-			</div>
-		</div>
-	);
-}; 
+  const { store, dispatch } = useGlobalReducer();
+
+  useEffect(() => {
+    async function fetchContacts() {
+      try {
+        const response = await fetch(`${API_URL}/agendas/${user}`);
+        if (!response.ok) {
+          if (response.status === 404) {
+            const createUserResponse = await fetch(`${API_URL}/agendas/${user}`, {
+              method: "POST",
+            });
+            if (!createUserResponse.ok) {
+              throw new Error("Failed to create contact list");
+            }
+            console.log("User created successfully");
+            return; // Exit early since there are no contacts yet
+          } else {
+            throw new Error("Failed to fetch contacts");
+          }  
+        }
+        const data = await response.json();
+        const action = { type: "SET_CONTACT_LIST", payload: data.contacts };
+        dispatch(action);
+      }
+      catch (error) {
+        console.error("Error fetching or creating user: ", error);
+      }
+    }
+
+    fetchContacts();
+
+  }, [dispatch]);
+
+
+  return (
+    <div>
+      <h1 className="text-center my-4">Contact List</h1>
+      <div className="d-flex flex-column align-items-center">
+        {store.contactList.length > 0 && store.contactList.map((contact, index) => (
+            <CardContact key={index} contact={contact} />
+          ))}
+      </div>
+    </div>
+  );
+};

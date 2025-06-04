@@ -1,87 +1,133 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
-import { Link, useNavigate, useParams } from 'react-router-dom'
-import { Context } from "../store/appContext.js";
+import { Link } from "react-router-dom";
+import avatar from "../assets/img/avatar.jpg";
+import useGlobalReducer from "../hooks/useGlobalReducer";
 
+const API_URL = "https://playground.4geeks.com/contact/docs"; // Asegúrate de que esta sea la URL correcta
+const user = "tester25";
 
-const AddContact = () => {
+function ContactCard({ contact }) {
+  const { dispatch } = useGlobalReducer();
 
-    const { store, actions } = useContext(Context)
-    let navigate = useNavigate();
-    const { id } = useParams(); //se obtine el id colocado en el layout
+  function handleDelete(id) {
+    deleteContact(id);
+  }
 
-    const [name, setName] = useState("");
-    const [phone, setPhone] = useState("");
-    const [email, setEmail] = useState("");
-    const [address, setAddress] = useState("");
-
-    function guardarContacto(e) {
-        e.preventDefault()
-        if (name.trim() == "" || phone.trim() == "" || email.trim() == "" || address.trim() == "") {
-            alert("Empty fields")
-            return null
+function deleteContact(id) {
+    fetch(`${API_URL}/agendas/${user}/contacts/${id}`, {
+      method: "DELETE",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          alert("Failed to delete contact");
+          throw new Error("Failed to delete contact");
         }
-        const payload = {
-            name: name,
-            phone: phone,
-            email: email,
-            address: address
-        };
-        if (!id) {
-            actions.createContact(payload)
-        } else {
-            actions.editContact(id, payload)
-        }
-        alert("Se grabo los datos del contacto");
-        navigate("/");
-        setName("");
-        setPhone("");
-        setEmail(""),
-        setAddress("");
+        return response.json(); // Asegúrate de manejar la respuesta
+      })
+      .then(() => {
+        dispatch({ type: "DELETE_CONTACT", payload: id });
+      })
+      .catch((error) => console.error("Error deleting contact: ", error));
+  }
 
-    }
-
-    useEffect(() => {
-        if (id && store.listContacts.length > 0) {
-            const currentContact = store.listContacts.find(contact => contact.id == id)
-            setName(currentContact.name)
-            setPhone(currentContact.phone)
-            setEmail(currentContact.email)
-            setAddress(currentContact.address)
-        }
-    }, [id, store.listContacts])
-
-    return (
-        <div className="container">
-            <h1 className="text-center">{!id ? "Add a New Contact" : `Editing Contact: ${name}`}</h1>
-
-            <form className="container" onSubmit={guardarContacto}>
-
-                <div className="mb-3">
-                    <label htmlFor="formGroupExampleInput1" className="form-label">Full Name</label>
-                    <input type="text" className="form-control" id="formGroupExampleInput1" placeholder="Full name" onChange={(e) => setName(e.target.value)} value={name} required />
-
-                </div>
-                <div className="mb-3">
-                    <label htmlFor="formGroupExampleInput2" className="form-label">Email</label>
-                    <input type="text" className="form-control" id="formGroupExampleInput2" placeholder="Enter email" onChange={(e) => setEmail(e.target.value)} value={email} required />
-                </div>
-                <div className="mb-3">
-                    <label htmlFor="formGroupExampleInput3" className="form-label">Phone</label>
-                    <input type="text" className="form-control" id="formGroupExampleInput3" placeholder="Enter phone" onChange={(e) => setPhone(e.target.value)} value={phone} required />
-                </div>
-                <div className="mb-3">
-                    <label htmlFor="formGroupExampleInput4" className="form-label">Address</label>
-                    <input type="text" className="form-control" id="formGroupExampleInput4" placeholder="Enter address" onChange={(e) => setAddress(e.target.value)} value={address} required />
-                </div>
-                <div className="mb-3">
-                    <button type="submit" className="btn btn-primary" >Save</button>
-                </div>
-            </form>
-
-            <Link to="/">volver a Contacts</Link>
+  return (
+    <div
+      className="card mb-3 px-3 py-2 shadow-sm rounded-3"
+      style={{ width: "min(540px, 90vw)" }}
+    >
+      <div className="row g-0 d-flex align-items-center">
+        <div className="col-md-3">
+          <img
+            src={avatar}
+            className="img-fluid rounded-circle"
+            alt="avatar image"
+          />
         </div>
-    );
 
+        <div className="col-md-7">
+          <div className="card-body">
+            <h5 className="card-title fw-semibold">{contact.name}</h5>
+            <p className="card-text mb-1">
+              <span>
+                <i className="fa-solid fa-envelope"></i>
+              </span>
+              {" " + contact.email}
+            </p>
+            <p className="card-text mb-1">
+              <span>
+                <i className="fa-solid fa-phone"></i>
+              </span>
+              {" " + contact.phone}
+            </p>
+            <p className="card-text mb-1">
+              <span>
+                <i className="fa-solid fa-location-dot"></i>
+              </span>
+              {" " + contact.address}
+            </p>
+          </div>
+        </div>
 
-};
-export default AddContact;
+        <div className="col-md-2">
+          <div className="d-flex justify-content-around">
+            <Link className="btn btn-primary" to={`/update/${contact.id}`}>
+              <i className="fa-solid fa-pen-to-square"></i>
+            </Link>
+
+            <button
+              type="button"
+              className="btn btn-danger"
+              data-bs-toggle="modal"
+              data-bs-target="#deleteModal"
+            >
+              <i className="fa-solid fa-trash-can"></i>
+            </button>
+
+            {/* Modal */}
+            <div
+              className="modal fade"
+              id="deleteModal"
+              tabIndex="-1"
+              aria-labelledby="deleteModalLabel"
+              aria-hidden="true"
+            >
+              <div className="modal-dialog">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <button
+                      type="button"
+                      className="btn-close"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+                    ></button>
+                  </div>
+                  <div className="modal-body">
+                    <p>Are you sure you want to delete this contact?</p>
+                  </div>
+                  <div className="modal-footer">
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      data-bs-dismiss="modal"
+                    >
+                      Close
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-danger"
+                      onClick={() => handleDelete(contact.id)}
+                      data-bs-dismiss="modal"
+                    >
+                      Delete Contact
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default ContactCard;
