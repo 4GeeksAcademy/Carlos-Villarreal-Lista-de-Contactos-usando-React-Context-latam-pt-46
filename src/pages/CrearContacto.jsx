@@ -2,10 +2,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const API_URL = "https://playground.4geeks.com/contact";
-const user = "tester25"
+const user = "Carlos"
 
 
-function CrearContacto() {
+function CreateContact() {
     const navigate = useNavigate();
   const [newContact, setNewContact] = useState({
     name: "",
@@ -45,7 +45,7 @@ function CrearContacto() {
 
   return (
     <div className="container mt-5">
-      <h1 className="mb-4 text-center">Create Contact</h1>
+      <h1 className="mb-4 text-center">Crear Contactos</h1>
       <form
         onSubmit={handleSubmit}
         style={{ width: "min(540px, 90vw)", margin: "auto" }}
@@ -113,4 +113,4 @@ function CrearContacto() {
   );
 }
 
-export default CrearContacto;
+export default CreateContact;

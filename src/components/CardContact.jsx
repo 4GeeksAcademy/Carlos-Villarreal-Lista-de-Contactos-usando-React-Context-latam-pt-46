@@ -3,7 +3,7 @@ import avatar from "../assets/img/avatar.jpg";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 
 const API_URL = "https://playground.4geeks.com/contact";
-const user = "tester25";
+const user = "Carlos";
 
 function CardContact({ contact }) {
   const { dispatch } = useGlobalReducer();
@@ -101,7 +101,7 @@ function CardContact({ contact }) {
                     ></button>
                   </div>
                   <div className="modal-body">
-                    <p>Are you sure you want to delete this contact?</p>
+                    <p>Estas seguro de eliminar este usuario?</p>
                   </div>
                   <div className="modal-footer">
                     <button

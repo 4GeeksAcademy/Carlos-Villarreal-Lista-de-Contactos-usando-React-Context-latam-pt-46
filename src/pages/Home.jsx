@@ -1,6 +1,6 @@
 import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
 
-import CardContact from "../components/CardContact.jsx";
+import ContactCard from "../components/CardContact.jsx";
 import { useEffect } from "react";
 
 const API_URL = "https://playground.4geeks.com/contact";
@@ -45,8 +45,9 @@ export const Home = () => {
     <div>
       <h1 className="text-center my-4">Contact List</h1>
       <div className="d-flex flex-column align-items-center">
-        {store.contactList.length > 0 && store.contactList.map((contact, index) => (
-            <CardContact key={index} contact={contact} />
+        {store.contactList.length > 0 &&
+          store.contactList.map((contact, index) => (
+            <ContactCard key={index} contact={contact} />
           ))}
       </div>
     </div>
