@@ -2,7 +2,7 @@ import useGlobalReducer from "../hooks/useGlobalReducer";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-const API_URL = "https://playground.4geeks.com/contact";
+const API_URL = "https://playground.4geeks.com/contact/docs#/";
 const user = "Carlos";
 
 const ActualizarContacto = () => {
